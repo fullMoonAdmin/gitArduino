@@ -94,6 +94,8 @@ void loop() {
     //Publish voltage to MQTT server
     Serial.print("Voltage: ");
     Serial.println(voltString);
+    //Change value of the string to whatever topic you want
+    //Example: "puzzle 1"
     client.publish("voltage", voltString);
   }
 }
