@@ -16,10 +16,6 @@ const int triggerPin = 18;
 // Volt Pin
 const int voltPin = 36;
 
-const float maxAnalogValue = 4095.0;
-const float sensorMaxVoltage = 25.0;
-float analogVoltage = 0.0;
-
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -32,8 +28,7 @@ void setup() {
   // default settings
   setup_wifi();
   client.setServer(mqtt_server, 1883);
-  client.setCallback(callback);
-  pinMode(triggerPin, OUTPUT); 
+  client.setCallback(callback);  
 }
 
 void setup_wifi() {
@@ -60,24 +55,8 @@ void callback(char* topic, byte* message, unsigned int length) {
   Serial.print("Message arrived on topic: ");
   Serial.print(topic);
   Serial.print(". Message: ");
-  String triggerState;
+   Serial.println();
   
-  for (int i = 0; i < length; i++) {
-    Serial.print((char)message[i]);
-    triggerState += (char)message[i];
-  }
-  Serial.println();
-  if (String(topic) == "testRoom/toggle") {
-    Serial.print("Changing output to ");
-    if(triggerState == "on"){
-      Serial.println("on");
-      digitalWrite(triggerPin, HIGH);
-    }
-    else if(triggerState == "off"){
-      Serial.println("off");
-      digitalWrite(triggerPin, LOW);
-    }
-  }
 }
 
 void reconnect() {
