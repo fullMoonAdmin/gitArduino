@@ -1,18 +1,18 @@
-
+/*
+This sketch is to measure the release of magnets for escape rooms using a ESP32 WROOM32 module with an analogue voltage sensor and an external trigger device like the PicoBoo +. 
+Just hook in the analog sensor to the ground and hot wires of the magnet
+*/
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include "arduino_secrets.h"
 
+//values to connect to wifi and MQTT server
 const char ssid[] = SECRET_SSID;
 const char password[] = SECRET_WIFIPASS;
 const char mqtt_server[] = SECRET_MQTTSERVER;
 const char mqtt_user[] = SECRET_MQTTUSER;
 const char mqtt_password[] = SECRET_MQTTPASS;
 
-
-
-//triggerPin
-const int triggerPin = 18;
 // Volt Pin
 const int voltPin = 36;
 
@@ -33,13 +33,10 @@ void setup() {
 
 void setup_wifi() {
   delay(10);
-  // We start by connecting to a WiFi network
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
-
   WiFi.begin(ssid, password);
-
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
@@ -55,8 +52,7 @@ void callback(char* topic, byte* message, unsigned int length) {
   Serial.print("Message arrived on topic: ");
   Serial.print(topic);
   Serial.print(". Message: ");
-   Serial.println();
-  
+   Serial.println();  
 }
 
 void reconnect() {
@@ -82,24 +78,27 @@ void loop() {
     reconnect();
   }
   client.loop();
-
   long now = millis();
   if (now - lastMsg > 5000) {
-    String finalVoltage;
-    
     lastMsg = now;
+    float analogVoltage; 
     analogVoltage = analogRead(voltPin);
-    
+
+    //set analog voltage value to a char array
     char voltString[8];
     dtostrf(analogVoltage, 4, 1, voltString);
 
     //Publish voltage to MQTT server
     Serial.print("Voltage: ");
     Serial.println(voltString);
-    //Change value of the string to whatever topic you want
-    //Example: "puzzle 1"
+    
     if (analogVoltage <= 0.0){
-    client.publish("testRoom/testPuzzle", "cured" );
-    }
+
+      //The first function parameter is the topic and the second is the message
+      //Change these values to what ever you wish
+      client.publish("testRoom/testPuzzle/cured", "true" );
+    } else {
+        client.publish("testRoom/testPuzzle/cured", "false" );
+      }
   }
 }
